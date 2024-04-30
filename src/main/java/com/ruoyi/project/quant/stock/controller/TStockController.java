@@ -125,6 +125,7 @@ public class TStockController extends BaseController {
     @ResponseBody
     public AjaxResult sync() {
         logger.info("开始同步数据中");
+        this.tStockService.sync();
         return toAjax(true);
     }
 }

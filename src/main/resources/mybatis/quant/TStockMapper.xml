@@ -24,6 +24,7 @@
             <if test="stockCode != null  and stockCode != ''"> and stock_code = #{stockCode}</if>
             <if test="stockName != null  and stockName != ''"> and stock_name like concat('%', #{stockName}, '%')</if>
         </where>
+        order by stock_code asc
     </select>
 
     <select id="selectTStockById" parameterType="Long" resultMap="TStockResult">
@@ -50,7 +51,21 @@
             <if test="updateTime != null">#{updateTime},</if>
         </trim>
     </insert>
-
+    <insert id="batchInsert" parameterType="java.util.List">
+        insert into t_stock
+        (stock_code, stock_name, create_by, create_time, update_by, update_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.stockCode},
+            #{item.stockName},
+            #{item.createBy},
+            #{item.createTime},
+            #{item.updateBy},
+            #{item.updateTime}
+            )
+        </foreach>
+    </insert>
     <update id="updateTStock" parameterType="TStock">
         update t_stock
         <trim prefix="SET" suffixOverrides=",">

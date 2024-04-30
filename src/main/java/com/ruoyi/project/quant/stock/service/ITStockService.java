@@ -63,4 +63,11 @@ public interface ITStockService {
      * 同步股票信息
      */
     void sync();
+
+    /**
+     * 批量插入股票数据
+     * @param stocks
+     * @return
+     */
+    int batchInsert(List<TStock> stocks);
 }

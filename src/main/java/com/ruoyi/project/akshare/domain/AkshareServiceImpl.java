@@ -1,5 +1,6 @@
 package com.ruoyi.project.akshare.domain;
 
+import cn.hutool.json.JSONUtil;
 import com.ruoyi.common.utils.http.HttpUtils;
 import com.ruoyi.project.akshare.service.AkshareService;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,6 @@ public class AkshareServiceImpl implements AkshareService {
     @Override
     public List<Stock> getStockInfoACodeName() {
         String json = HttpUtils.sendGet(prefix + "/stock_info_a_code_name");
-        return null;
+        return JSONUtil.toList(json, Stock.class);
     }
 }

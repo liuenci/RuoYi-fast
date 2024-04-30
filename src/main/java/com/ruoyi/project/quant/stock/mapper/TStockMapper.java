@@ -58,4 +58,11 @@ public interface TStockMapper {
      * @return 结果
      */
     int deleteTStockByIds(String[] ids);
+
+    /**
+     * 批量插入股票信息
+     * @param stocks
+     * @return
+     */
+    int batchInsert(List<TStock> stocks);
 }

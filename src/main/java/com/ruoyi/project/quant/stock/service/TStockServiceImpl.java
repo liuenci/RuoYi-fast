@@ -1,13 +1,18 @@
 package com.ruoyi.project.quant.stock.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.project.akshare.domain.Stock;
+import com.ruoyi.project.akshare.service.AkshareService;
 import com.ruoyi.project.quant.stock.mapper.TStockMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 import com.ruoyi.project.quant.stock.domain.TStock;
 import com.ruoyi.common.utils.text.Convert;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 股票Service业务层处理
@@ -20,6 +25,7 @@ import com.ruoyi.common.utils.text.Convert;
 public class TStockServiceImpl implements ITStockService {
 
     private final TStockMapper tStockMapper;
+    private final AkshareService akshareService;
 
     /**
      * 查询股票
@@ -93,9 +99,28 @@ public class TStockServiceImpl implements ITStockService {
      * 同步股票信息
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void sync() {
+        List<Stock> stocks = this.akshareService.getStockInfoACodeName();
 
+        List<TStock> tStocks = this.selectTStockList(new TStock());
+        List<TStock> insertList = stocks
+                .stream()
+                .filter(s -> tStocks.stream().noneMatch(t -> s.getCode().equals(t.getStockCode())))
+                .map(e -> TStock.builder()
+                        .stockCode(e.getCode())
+                        .stockName(e.getName())
+                        .build())
+                .collect(Collectors.toList());
+        this.batchInsert(insertList);
     }
 
+    @Override
+    public int batchInsert(List<TStock> stocks) {
 
+        List<List<TStock>> batches = ListUtils.partition(stocks, 200);
+        // 执行批量插入操作，调用 batchInsert SQL 映射中的方法，传入当前批次的列表
+        batches.forEach(this.tStockMapper::batchInsert);
+        return stocks.size();
+    }
 }
